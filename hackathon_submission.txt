@@ -1,0 +1,62 @@
+1. PROBLEM STATEMENT AND APPROACH
+The transition of Aadhaar from an enrolment phase to a maintenance phase brings unique operational challenges. District level demand is highly volatile, driven by age based mandatory updates and migration patterns. Traditional static reporting fails to capture these dynamic shifts in real time. Our approach utilizes predictive analytics on aggregated administrative data. We treat service demand as a signal processing problem, filtering noise from daily logs to identify genuine stress trends. This proactive methodology empowers decision makers to allocate resources effectively before backlogs form.
+
+2. DATASETS USED
+We utilized three official aggregated datasets provided for the hackathon. No external data was introduced.
+
+Aadhaar Enrolment Dataset
+Nature: Aggregated enrolment counts.
+Key Columns: Date, State, District, Age Group (0 to 5, 5 to 17, 18 plus).
+Purpose: To track saturation growth and identify fresh enrolment hotspots.
+
+Aadhaar Demographic Update Dataset
+Nature: Aggregated counts of demographic modifications.
+Key Columns: Geography, Date, Update Volume.
+Purpose: To measure administrative load regarding corrections and address changes.
+
+Aadhaar Biometric Update Dataset
+Nature: Aggregated biometric update logs.
+Key Columns: Geography, Date, Age Group.
+Purpose: Crucial for tracking mandatory biometric updates for children turning 5 and 15.
+
+Derived Aadhaar Stress Index Dataset
+Nature: Computed risk scores.
+Key Columns: Stress Score (0 to 100), Risk Category, Normalized Component Loads.
+Purpose: To provide a single health metric for district operations.
+
+3. METHODOLOGY
+Our data pipeline follows a strict privacy first design.
+
+Data Cleaning and Standardization
+We implemented robust preprocessing to handle real world data inconsistencies. State and district names were normalized (e.g., standardizing Odisha spelling) and filtered against a strict whitelist of valid Indian states to remove artifacts. Numeric garbage values were purged to ensure high data quality.
+
+Aggregation and Feature Engineering
+Daily logs were aggregated to a monthly granularity per district. We engineered features reflecting operational load, such as the ratio of biometric updates to total activity, serving as a proxy for child mandatory update compliance pressure.
+
+Aadhaar Stress Index Computation
+We formulated the Stress Index as a weighted linear combination of normalized Enrolment, Biometric, and Demographic loads. This creates a standardized score comparable across small and large districts.
+
+Predictive Modeling
+We utilized the Prophet forecasting framework for its robustness with time series data. Separate models were trained for each district to capture local seasonality. Anomaly detection was implemented using a statistical Z-score threshold (mean plus 2 standard deviations) to flag outlier months efficiently.
+
+4. DATA ANALYSIS AND VISUALIZATION
+Our analysis revealed distinct regional patterns. High enrolment stress was effectively identified in specific border districts, while metropolitan hubs showed consistent demographic update pressure.
+
+Visualisations Dashboard
+The Streamlit dashboard encapsulates our findings:
+Trend Analysis: Interactive line charts showing the trajectory of the Stress Index over time.
+Component Breakdown: Stacked area charts visualizing whether stress is driven by new enrolments or updates.
+National Hotspots: A tabular view ranking the top 5 most stressed districts in the country.
+Forecast View: Projected demand graphs for the upcoming quarter.
+
+5. CODE AND IMPLEMENTATION NOTES
+The solution is built using Python for its rich data science ecosystem.
+
+Core Components
+Data Loader: Handles ingestion, cleaning, and merging of multi part CSV files.
+Stress Engine: Computes risk scores using Scikit-Learn for normalization.
+Forecasting Model: Implements Prophet for district level demand prediction.
+Dashboard: Built with Streamlit and Plotly for a responsive, user friendly interface.
+
+Reproducibility
+The codebase is modular and container ready. All random seeds are fixed for consistent results. The system is designed to run offline, ensuring no data leaves the secure environment. Privacy safeguards are inherent, as the system strictly processes aggregated counts and never interacts with PII.
